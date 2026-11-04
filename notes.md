@@ -54,3 +54,35 @@ launched one background subagent.
 - **Privacy**: every request carries the account email (in a reminder) and device, account and
   session ids (in `metadata.user_id`). `proxy.py` also prints the first 16 characters of the
   token. Mask these before showing traffic to the class.
+
+## What the home build showed (`builds/01-home`, built from the committed `SPEC.md`)
+
+- **Too slow for the lab loop.** One fresh agent took about 55 minutes (about 315k tokens). It
+  wrote `monitor.py` (1,442 lines), `app.js` (1,013 lines) and a fake upstream, and ran all 11
+  acceptance checks. The lab gives 70 minutes for the whole loop.
+- **It works on live traffic.** I checked two sessions in the browser: parallel reads, a missing
+  file, a file containing HTML, and a background subagent.
+  - The timeline is newest first, with `YOU`, `CALL`, `RESULT`, `MODEL`, `TASK` and `HARNESS`
+    labels in distinct colours and `main`/`sub-1` thread pills.
+  - Each tool result sits under its call ("CALL · Read … from #5").
+  - The missing file shows as a red ERROR card, a red dot on its row, and "1 error" in the top bar.
+  - `<script>` from the file shows as text.
+  - The subagent's result shows as `HARNESS · subagent result`, linked to `sub-1`.
+  - Hidden thinking shows as "thinking hidden · 50 tokens".
+  - The account email is masked.
+  - The terminal prints one line per exchange.
+- **Candidates for the next spec commit:**
+  1. Build time. Either trim the first build (e.g. live checks 10–11 only; the fake-upstream
+     checks once, before switching to editing), or move more to "Later".
+  2. Long absolute paths eat the row lines ("Read …251af3f2e439/scratchpad/fixtures/notes.txt").
+     Show the file name, with the full path on hover.
+  3. The model's markdown shows raw (`**pomegranate**`). Decide on minimal rendering: bold,
+     inline code, fences.
+  4. Once, on the very first page load, Follow live highlighted the newest row, but the detail
+     stayed on "Waiting for traffic…". It did not happen again after a restart. Add a check:
+     "a fresh page with Follow live on opens the first exchange by itself".
+  5. An expanded "Show all" inside Reply collapses on every streaming update (known issue).
+  6. Choices the builder had to make, listed in `builds/01-home/BUILD_NOTES.md`, can be pinned
+     down. For example, a finished HTTP 500 is `done` (red by status) while `error` means a network
+     failure; a request without tools is `side` even with an agent-id header; section open or
+     closed state is kept in localStorage.

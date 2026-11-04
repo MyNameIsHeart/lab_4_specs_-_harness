@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent traffic</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header id="top">
+  <div class="bar">
+    <span id="conn" class="conn off" title="connection to the monitor">● connecting</span>
+    <span id="totals" class="totals"></span>
+    <button id="errs" class="errs" type="button" title="Show only errors">0 errors</button>
+    <span id="pills" class="pills" aria-label="thread filter"></span>
+  </div>
+  <div class="bar toggles">
+    <label><input type="checkbox" id="opt-errors"> errors only</label>
+    <label><input type="checkbox" id="opt-hide" checked> hide non-message</label>
+    <label><input type="checkbox" id="opt-follow" checked> Follow live</label>
+    <label><input type="checkbox" id="opt-privacy" checked> Privacy</label>
+  </div>
+</header>
+<main id="main">
+  <section id="left" aria-label="timeline">
+    <button id="chip" class="chip" type="button" hidden>0 new ↑</button>
+    <div id="timeline" role="list"></div>
+  </section>
+  <section id="detail" aria-label="detail"><div class="placeholder">Waiting for traffic…</div></section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>
