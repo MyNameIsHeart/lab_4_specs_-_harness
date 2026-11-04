@@ -1,0 +1,6 @@
+# traffic captures can contain your prompts, file contents and system prompt: keep them out of git
+*.jsonl
+*.log
+__pycache__/
+*.pyc
+.DS_Store
