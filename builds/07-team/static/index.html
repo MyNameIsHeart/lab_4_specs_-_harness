@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <title>Agent Traffic Monitor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<script>/* apply the saved theme before the first paint; the default follows the system */
+try { var t = localStorage.getItem('dash.theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}</script>
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -17,6 +20,7 @@
   <label><input type="checkbox" id="f-nonmsg" checked> hide non-message</label>
   <label><input type="checkbox" id="f-follow" checked> Follow live</label>
   <label><input type="checkbox" id="f-privacy" checked> Privacy</label>
+  <button id="b-theme" class="tb" title="Switch between light and dark">&#9681; Theme</button>
   <button id="b-stats" class="tb">Stats</button>
   <button id="b-flow" class="tb" disabled title="not built yet">Flow</button>
   <button id="b-growth" class="tb" disabled title="not built yet">Growth</button>

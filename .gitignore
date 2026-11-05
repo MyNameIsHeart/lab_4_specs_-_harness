@@ -4,3 +4,5 @@
 __pycache__/
 *.pyc
 .DS_Store
+# local copies of the two files uploaded to Moodle; the originals are tracked in the root
+submission/

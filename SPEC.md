@@ -295,6 +295,12 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
     instead of saying "waiting".
   - Detail sections and cards sit on a light grey canvas as white panels with a soft shadow.
     Numbers use tabular figures.
+  - **Dark theme.** Every colour is a token on `:root`, redefined under
+    `:root[data-theme="dark"]` and, for pages with no saved choice, under
+    `@media (prefers-color-scheme: dark)`. A "Theme" button in the top bar switches and saves
+    the choice (localStorage); the saved theme is applied before the first paint. The feature
+    overlays (Flow, Growth, X-ray) use the same tokens, with light fallbacks. Colours set as
+    SVG attributes, where `var()` does not apply, are translucent greys that read on both.
 
 ## 8. Message rendering
 
@@ -486,7 +492,6 @@ the API:
 - A cost estimate in dollars, which needs a price table with model-prefix rules.
 - Foldable, syntax-coloured JSON, and copy buttons.
 - `--save` / `--load` to JSONL.
-- A dark theme.
 - Codex (OpenAI format) traffic beyond the raw view.
 
 ## 13. Still open (to settle with my partner)

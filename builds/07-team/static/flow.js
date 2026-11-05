@@ -10,18 +10,20 @@
 
   const css = document.createElement('style');
   css.textContent = [
-    '#flow-ov{position:fixed;inset:20px;z-index:50;background:#fff;border:1px solid #cbd5e1;border-radius:10px;',
+    '#flow-ov{position:fixed;inset:20px;z-index:50;background:var(--panel,#fff);color:var(--fg,#0f172a);border:1px solid var(--line,#cbd5e1);border-radius:10px;',
     'box-shadow:0 12px 40px rgba(15,23,42,.25);display:flex;flex-direction:column}',
     '#flow-ov[hidden]{display:none}',
-    '#flow-ov .fh{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #e2e8f0;font:600 14px system-ui}',
-    '#flow-ov .fh .sub{font-weight:400;color:#64748b}',
+    '#flow-ov .fh{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--line,#e2e8f0);font:600 14px system-ui}',
+    '#flow-ov .fh .sub{font-weight:400;color:var(--muted,#64748b)}',
     '#flow-ov .fh button{margin-left:auto}',
     '#flow-ov .fb{overflow:auto;flex:1;padding:4px}',
-    '#flow-ov svg text{font:12px system-ui;fill:#0f172a}',
+    '#flow-ov svg text{font:12px system-ui;fill:var(--fg,#0f172a)}',
     '#flow-ov .lab{cursor:pointer}',
     '#flow-ov .lab:hover text{text-decoration:underline}',
-    '#flow-ov text.t{fill:#94a3b8;font-size:11px}',
-    '#flow-ov .legend{display:flex;gap:14px;padding:6px 14px;font:12px system-ui;color:#475569;border-bottom:1px solid #f1f5f9}',
+    '#flow-ov text.t{fill:var(--muted,#94a3b8);font-size:11px}',
+    '#flow-ov line.ll{stroke:var(--line,#cbd5e1)} #flow-ov line.ll.sub{stroke:#a78bfa}',
+    '#flow-ov rect.hd{fill:var(--tint,#f8fafc);stroke:var(--muted,#94a3b8)} #flow-ov rect.hd.sub{fill:color-mix(in srgb,#9333ea 14%,var(--panel,#fff));stroke:#9333ea}',
+    '#flow-ov .legend{display:flex;gap:14px;padding:6px 14px;font:12px system-ui;color:var(--muted,#475569);border-bottom:1px solid var(--line2,#f1f5f9)}',
     '#flow-ov .legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:5px}',
   ].join('\n');
   document.head.appendChild(css);
@@ -179,8 +181,8 @@
     for (const [key, name] of lanes) {
       const x = X[key];
       const isSub = threads.includes(key);
-      el('line', { x1: x, y1: 50, x2: x, y2: H - 8, stroke: isSub ? '#d8b4fe' : '#cbd5e1', 'stroke-dasharray': '4 4' }, root);
-      el('rect', { x: x - 80, y: 14, width: 160, height: 32, rx: 7, fill: isSub ? '#faf5ff' : '#f8fafc', stroke: isSub ? C.sub : '#94a3b8' }, root);
+      el('line', { class: 'll' + (isSub ? ' sub' : ''), x1: x, y1: 50, x2: x, y2: H - 8, 'stroke-dasharray': '4 4' }, root);
+      el('rect', { class: 'hd' + (isSub ? ' sub' : ''), x: x - 80, y: 14, width: 160, height: 32, rx: 7 }, root);
       const tx = el('text', { x: x, y: 35, 'text-anchor': 'middle', 'font-weight': '600' }, root);
       tx.textContent = name;
     }

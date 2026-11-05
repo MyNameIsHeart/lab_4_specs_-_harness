@@ -967,6 +967,20 @@ function showEmpty() {
   detailEl.replaceChildren(t ? t.content.cloneNode(true) : el('div', 'empty', 'Waiting for the first request…'));
 }
 showEmpty();
+// Theme toggle: light / dark, saved per browser; with nothing saved the page follows the system.
+(function themeToggle() {
+  const b = $('b-theme');
+  if (!b) return;
+  const cur = () => document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const paint = () => { b.textContent = cur() === 'dark' ? '☀ Light' : '☾ Dark'; };
+  b.onclick = () => {
+    const next = cur() === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('dash.theme', next); } catch (e) { /* private window: the choice lasts this page only */ }
+    paint();
+  };
+  paint();
+})();
 async function loadList() {
   try {
     const r = await fetch('/api/exchanges');
