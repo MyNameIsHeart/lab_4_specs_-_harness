@@ -140,6 +140,9 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
   - `earlier`: the rest of the conversation before the new messages;
   - `new`: the new messages, without their harness text.
 - **Your words**: the characters of YOU segments in this request, and their share of the whole.
+- **Prompt sections**: each system block is split at its lines that start with `#`. Text before
+  the first heading is a section called "(preamble)". A section is its heading, its text and
+  its size; the sizes add up to the block's size.
 - **Tool time**: for a request after the first of its thread, the gap between the end of the
   previous reply and this request's start. That is the time the harness spent running tools
   (or waiting for a subagent).
@@ -217,6 +220,20 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
   - **Input cost saved by caching**, as a percentage. This needs no prices: a cache read costs
     0.1× the base input price, and a cache write 1.25× (5-minute) or 2× (1-hour).
   - Calls per tool as a bar list, errors, and total tool time against total model time.
+- **System prompt explorer**, the default view of the System instructions section:
+  - One row per prompt section: its heading, its size, and a bar for its share of the block.
+  - Clicking a row shows that section's text.
+  - The full text of each block stays one click away.
+- **Compare**: a "Compare with…" button on every message exchange. Picking a second exchange
+  (by clicking its row, or by typing its #id) opens a side-by-side view of the two requests:
+  - Their model, anatomy bars and numbers (system, tools, harness, earlier, new, tokens).
+  - Their prompt sections matched by heading: in both (with both sizes and the difference),
+    only in A, or only in B.
+  - A line diff of the two system prompts: added lines green, removed lines red, unchanged runs
+    folded to "… N unchanged lines".
+  - The tool lists: tools only in A, tools only in B, and size changes of tools in both.
+  - Typical use: the first request of a Haiku session against the first request of an Opus
+    session, to see what the harness cut for the newer model.
 - **Timeline (left, about 40% of the width)**: one row per exchange, **newest first**, appearing
   as soon as the request arrives. A row shows #id, time, the thread pill, the state (a spinner
   and elapsed time while streaming), the duration, `in`/`out` tokens, and two lines of at most
@@ -336,6 +353,12 @@ and 11 at the end of this section, and:
   caching saving shows as a percentage.
 - F6. **Only real errors are red.** In a live run where exactly one tool call fails (reading a
   missing file), exactly one row has the red dot and the top bar says "1 error".
+- F7. **Explorer and compare.**
+  - The System section of a Claude Code request lists the prompt's sections, and their sizes
+    add up to the block's size.
+  - Comparing a `--model claude-haiku-4-5` first request with a `--model claude-opus-5-5`
+    first request shows the size difference per section, the tool-list changes, and a line
+    diff with unchanged lines folded.
 
 **Full checks 1–9** come when we switch to editing the code. They need the fake upstream.
 
