@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Agent traffic</title>
+<title>Agent Traffic Monitor</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <header id="topbar">
+  <span class="brand"><span class="logo"></span>Agent Traffic <small>Claude Code &harr; model, live</small></span>
   <span id="conn" class="conn off">&#9679; connecting</span>
   <span id="totals"></span>
   <span id="pills"></span>
@@ -21,6 +22,21 @@
   <button id="b-growth" class="tb" disabled title="not built yet">Growth</button>
   <button id="b-xray" class="tb" disabled title="not built yet">X-ray</button>
 </header>
+<details id="legend"><summary>How to read this page</summary><div class="lg">
+  <div><span class="kchip k-you">YOU</span> what you typed</div>
+  <div><span class="kchip k-model">MODEL</span> the model's text answer</div>
+  <div><span class="kchip k-call">CALL</span> the model asks Claude Code to run a tool</div>
+  <div><span class="kchip k-result">RESULT</span> the tool's output, sent back to the model</div>
+  <div><span class="kchip k-harness">HARNESS</span> text Claude Code added that you never typed</div>
+  <div><span class="kchip k-task">TASK</span> a subagent's instructions, written by the main agent</div>
+  <div><span class="kchip k-thinking">THINKING</span> hidden reasoning: only its size comes back</div>
+  <div><span class="kchip k-system">SYSTEM</span> the system prompt, re-sent with every request</div>
+  <div><b>&uarr;</b>&nbsp;what the agent sent &nbsp;&middot;&nbsp; <b>&darr;</b>&nbsp;what the model answered</div>
+  <div>Lanes: one row per agent (main, sub-1&hellip;); &#9881; is time spent running tools</div>
+  <div style="grid-column: 1 / -1">The thin bar under each row shows what the request is made of:
+    <span class="sw a-system"></span>system prompt <span class="sw a-tools"></span>tool definitions
+    <span class="sw a-harness"></span>harness text <span class="sw a-earlier"></span>earlier conversation <span class="sw a-new"></span>new</div>
+</div></details>
 <div id="lanes"></div>
 <div id="stats" hidden></div>
 <main>
@@ -28,8 +44,11 @@
     <button id="chip" hidden></button>
     <div id="timeline"></div>
   </section>
-  <section id="detail"><div class="empty">Waiting for the first request&hellip;</div></section>
+  <section id="detail"></section>
 </main>
+<template id="empty-tpl"><div class="empty"><b>Waiting for traffic</b>Point your coding agent at the proxy and use it as usual:<br>
+  <code>ANTHROPIC_BASE_URL=http://localhost:8041 claude</code><br>
+  Every request it sends to the model, and every reply, appears here live. (The monitor's terminal prints the exact command.)</div></template>
 <script src="/app.js"></script>
 <script src="/flow.js"></script>
 <script src="/growth.js"></script>

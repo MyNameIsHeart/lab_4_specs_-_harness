@@ -1,6 +1,6 @@
 # Spec history
 
-SPEC.md has seven commits. Every commit message gives its reason (what the build before it showed), so no build notes were needed. The source of each reason is named per entry.
+SPEC.md has eleven non-merge commits (merges c9fa259 skipped). Every message gives a reason or the diff shows what was added, so no build code or sessions were needed; the source is named per entry.
 
 ## 1. 470ac29 First draft
 - **Changed:** Added proxy.py (the course proxy, unchanged) and the first SPEC.md (220 lines).
@@ -35,6 +35,27 @@ Between spec v4 (50cba62) and the next spec commit (d6f5ab5) we stopped rebuildi
 ## 7. 7d0af96 After build 05
 - **Changed:** The traffic section gives the exact shape of a `tool_addition` block (name at `tool.definition.name`) and says a string equals one text block when comparing messages; check F8 now requires the real tool name on TOOL ADDED cards.
 - **Why:** Build 05-edit (17 minutes, slowed by the network outage) showed TOOL ADDED cards reading "TOOL ADDED · ?" because the spec never gave the block's shape, and a false "history changed" flag because the same message came as a string in one request and a block list in the next. (commit 7d0af96; confirmed in build commit 1cad595)
+
+---
+### Team phase: three people, one branch each
+---
+
+## 8. 6cab496 Set up build 07 with three feature slots
+- **Changed:** Section 6 lists the new files (`flow.js`, `growth.js`, `xray.js`); new section 14 specifies Flow (14.1), Growth (14.2) and X-ray (14.3) and the shared rules (existing API only, own CSS, `textContent` only, no edits to `app.js`, `monitor.py` or `style.css`).
+- **Why:** So three parallel branches merge without conflicts: each person edits only their own file and subsection. (commit message of 6cab496)
+
+## 9. 4ef78e2 Flow: the agent loop as a sequence diagram
+- **Changed:** One line in 14.1: tool times under a second show in milliseconds (a `Read` takes about 40 ms). The commit also added `flow.js`.
+- **Why:** Checked in a browser on live traffic (two parallel Reads, then a background subagent), the diagram worked but showed how short Reads are. (commit message of 4ef78e2)
+
+## 10. ad51e1c Add X-ray panel for request text provenance and sizes (Bnaya Gez)
+- **Changed:** 14.3 gains accounting rules: counts cover the whole request, in Unicode code points (characters, not tokens); "your words" versus harness additions versus model/tool history add up to 100%; panel follows the selected row and honors the email Privacy toggle. The same text went into `builds/07-team/SPEC.md`.
+- **Why:** No reason in the commit (one-line message, no body). From the diff: it pins down what "you typed" can and cannot prove, since unmarked user text cannot be shown to be human-authored from traffic alone. (diff of ad51e1c; the rest is `xray.js`)
+- Growth (d072012, Shira Levy, "SPEC.md 14.2") changed only `growth.js`; its subsection came with 6cab496, so SPEC.md has no Growth commit of its own.
+
+## 11. c1b60b3 Design pass (SPEC.md 7)
+- **Changed:** Section 7 gains a "Look and feel" rule: design tokens on `:root` (kind colours included), product name and buttons in the top bar, a collapsible "How to read this page" legend, kinds as coloured chips, an empty state that gives the `ANTHROPIC_BASE_URL=… claude` command, white panels on a light canvas.
+- **Why:** Every build worked, but the page read as a debug dump: bare words in rows ("RESULT Read notes.txt"), grey boxes, no colour explanation, and "Waiting for the first request". (commit c1b60b3)
 
 ## Findings in the traffic
 Source: notes.md.

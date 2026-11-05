@@ -22,18 +22,20 @@ again by fresh agent sessions from `SPEC.md` alone. The spec improves after ever
 | `04-edit` | adds the system prompt explorer and Compare | 2 min |
 | `05-edit` | handles `role: "system"` messages and `tool_addition` (newer models) | ~17 min (outage) |
 | `06-edit` | real tool names on TOOL ADDED cards (the block's shape is now in the spec) | ~5 min |
+| `07-team` | three features built in parallel, one person and one branch each: **Flow** (sequence diagram), **Growth** (context growth and caching), **X-ray** (everything the model saw that you did not type); then a design pass | 3 × ~15 min + 20 min |
 
 ## Run the latest build
 
 ```
-cd builds/06-edit
+cd builds/07-team
 python3 monitor.py                                  # proxy on :8041, dashboard on :8042
 ANTHROPIC_BASE_URL=http://localhost:8041 claude     # another terminal: use the agent as usual
 open http://localhost:8042
 ```
 
 Things to try:
-- Click **Stats** to see the caching saving.
+- Open **How to read this page** under the top bar for the legend.
+- Click **Stats** to see the caching saving, **Flow** for the agent loop as a sequence diagram, **Growth** for the context growth per request, and **X-ray** for everything the model saw that you did not type.
 - Look at the lanes while a subagent runs.
 - Open **System instructions** for the prompt's sections.
 - Run once with `--model claude-haiku-4-5` and once with `--model claude-opus-5-5`, then use

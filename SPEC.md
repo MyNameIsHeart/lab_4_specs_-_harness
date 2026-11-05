@@ -283,6 +283,18 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
     never move the selection or the scroll; a "N new ↑" chip appears instead.
   - Clicking the chip or the toggle turns it back on.
 - Clicking a thread pill anywhere filters to that thread.
+- **Look and feel.** The page must read as a tool, not a debug dump:
+  - Colours, radii and shadows come from design tokens on `:root`; the kind colours of
+    section 8 are among them, so the chips, cards and legend always agree.
+  - The top bar carries a product name, a connection pill, and buttons that look like buttons.
+  - A collapsible "How to read this page" legend under the top bar explains every kind chip,
+    the `↑`/`↓` row lines, the lanes and the anatomy colours in one screen.
+  - In a row, the kind (YOU, CALL, RESULT, MODEL, TASK, HARNESS) is a coloured chip, not a
+    bare word, so a row can be read at a glance without the legend.
+  - The empty page tells the reader what to do (the `ANTHROPIC_BASE_URL=… claude` command)
+    instead of saying "waiting".
+  - Detail sections and cards sit on a light grey canvas as white panels with a soft shadow.
+    Numbers use tabular figures.
 
 ## 8. Message rendering
 
@@ -539,3 +551,19 @@ feature enables it. Every feature follows the same rules:
 - At the top, in large type: "You typed N characters. The harness added M (P%)."
 - Check: for a Haiku first request it lists 3 system blocks, the tool definitions and 8–9
   reminders, and the shares plus "your words" add up to 100%.
+
+X-ray accounting and interaction details:
+- Counts cover the entire selected request, including earlier turns. A character is a Unicode
+  code point. Text includes harness tag delimiters; tools, tool additions and other structured
+  blocks use compact JSON. Transport fields, cache metadata and image/document payloads are
+  excluded. These are character counts, not token estimates.
+- Plain main-thread user text is counted as “your words”. Recognized harness tags, system
+  messages, side/subagent prompts and scheduled wakeups are harness additions. Unmarked user
+  text cannot be proven to be human-authored from traffic alone.
+- Earlier model text, tool calls and tool output are listed separately from harness additions.
+  Your words + harness + model/tool history account for 100% before display rounding; the
+  model/tool history can be hidden without changing the denominator.
+- Request order is system blocks, tool definitions, then message/block order. Locations identify
+  the message, role, block and enclosing tool result. Largest-first sorting is optional.
+- The panel follows the selected timeline row, honors the existing email Privacy toggle,
+  supports Close/Escape and reports unavailable bodies or unsupported formats.

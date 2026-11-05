@@ -5,7 +5,7 @@
 Before you present, start the monitor and prepare two sessions for Compare:
 
 ```
-cd builds/06-edit && python3 monitor.py           # proxy :8041, dashboard http://localhost:8042
+cd builds/07-team && python3 monitor.py           # proxy :8041, dashboard http://localhost:8042
 ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me the secret word" --model claude-haiku-4-5
 ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me the secret word" --model claude-opus-5-5
 ```
@@ -19,7 +19,9 @@ ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me t
 5. **Stats**: 96% cache reads, so caching saved ~84% of the input cost; the model's time against
    the tools' time.
 6. **System instructions**: the prompt's sections with their sizes.
-7. **Compare with…**: the Opus first request against the Haiku first request. The Opus
+7. **X-ray**: on any request, the headline "You typed N characters. The harness added M (P%)", then every
+   block the human never typed, with its size and share.
+8. **Compare with…**: the Opus first request against the Haiku first request. The Opus
    prompt is 77% shorter, and you can see exactly which sections were cut and the line diff.
 
 ## The builds
@@ -33,7 +35,8 @@ ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me t
 | 03-scratch | from scratch, spec v4 (control) | Sonnet | 10 min | 1,203 / 521 | same features, different design; showed a real network outage as red lanes |
 | 04-edit | edited 03-edit to spec v5 | Sonnet | 2 min | 1,017 / 987 | system prompt explorer; Compare (Opus 5.5 vs Haiku 4.5) |
 | 05-edit | edited 04-edit to spec v6 | Sonnet | ~17 min (live tests hit the outage) | 1,042 / 1,009 | Opus environment shows as HARNESS; "your words" 42 chars instead of 26K; TOOL ADDED cards read "?" |
-| 06-edit | edited 05-edit to spec v7 | Sonnet | ~5 min | see build | real tool names on TOOL ADDED cards |
+| 06-edit | edited 05-edit to spec v7 | Sonnet | ~5 min | 1,042 / 1,010 | real tool names on TOOL ADDED cards |
+| 07-team | three features in parallel (Flow, Growth, X-ray), one person and one branch each, then a design pass | 3 people + Sonnet | ~15 min each, in parallel | +208 / +285 / +178 lines, one file each | all three open on live traffic; X-ray: "You typed 43 characters. The harness added 90,814 (98.8%)" |
 
 ## 1. Which decisions did we only discover by building?
 
