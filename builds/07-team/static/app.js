@@ -833,6 +833,13 @@ function makeRow(s) {
   r.onclick = () => { setFollow(false); select(s.id); };
   return r;
 }
+// A row line starts with its kind ("RESULT Read notes.txt"): show the kind as a coloured chip, the rest as text.
+const ROW_KINDS = { YOU: 'you', MODEL: 'model', CALL: 'call', RESULT: 'result', HARNESS: 'harness', TASK: 'task', ERROR: 'error', THINKING: 'thinking' };
+function rowLine(text) {
+  const m = /^([A-Z]+)\b\s?(.*)$/s.exec(text || '');
+  if (!m || !ROW_KINDS[m[1]]) return [document.createTextNode(text || '')];
+  return [el('span', 'kchip k-' + ROW_KINDS[m[1]], m[1]), document.createTextNode(m[2])];
+}
 function updateRow(r, s) {
   const p = r._p;
   r.classList.toggle('red', !!s.red);
@@ -853,8 +860,8 @@ function updateRow(r, s) {
   p.dur.textContent = durText(s);
   if (s.is_message) {
     p.tok.textContent = (s.in || s.out) ? fmtk(s.in) + '/' + fmtk(s.out) : '';
-    p.l2.replaceChildren(el('span', 'arrow', '↑ '), document.createTextNode(P(s.up)));
-    p.l3.replaceChildren(el('span', 'arrow', '↓ '), document.createTextNode(P(s.down)));
+    p.l2.replaceChildren(el('span', 'arrow', '↑ '), ...rowLine(P(s.up)));
+    p.l3.replaceChildren(el('span', 'arrow', '↓ '), ...rowLine(P(s.down)));
     p.l3.hidden = false;
   } else {
     p.tok.textContent = '';
@@ -951,9 +958,15 @@ function renderTotals() {
 }
 function clearAll() {
   S.ex.clear(); rows.clear(); $('lanes').replaceChildren(); $('stats').hidden = true; tl.replaceChildren(); S.sel = null; S.detail = null; S.newCount = 0; showChip();
-  detailEl.replaceChildren(el('div', 'empty', 'Waiting for the first request…'));
+  showEmpty();
   scheduleTotals();
 }
+function showEmpty() {
+  // The welcome text lives in index.html (<template id="empty-tpl">), so it is static markup, never traffic.
+  const t = document.getElementById('empty-tpl');
+  detailEl.replaceChildren(t ? t.content.cloneNode(true) : el('div', 'empty', 'Waiting for the first request…'));
+}
+showEmpty();
 async function loadList() {
   try {
     const r = await fetch('/api/exchanges');

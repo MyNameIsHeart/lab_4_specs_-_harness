@@ -283,6 +283,18 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
     never move the selection or the scroll; a "N new ↑" chip appears instead.
   - Clicking the chip or the toggle turns it back on.
 - Clicking a thread pill anywhere filters to that thread.
+- **Look and feel.** The page must read as a tool, not a debug dump:
+  - Colours, radii and shadows come from design tokens on `:root`; the kind colours of
+    section 8 are among them, so the chips, cards and legend always agree.
+  - The top bar carries a product name, a connection pill, and buttons that look like buttons.
+  - A collapsible "How to read this page" legend under the top bar explains every kind chip,
+    the `↑`/`↓` row lines, the lanes and the anatomy colours in one screen.
+  - In a row, the kind (YOU, CALL, RESULT, MODEL, TASK, HARNESS) is a coloured chip, not a
+    bare word, so a row can be read at a glance without the legend.
+  - The empty page tells the reader what to do (the `ANTHROPIC_BASE_URL=… claude` command)
+    instead of saying "waiting".
+  - Detail sections and cards sit on a light grey canvas as white panels with a soft shadow.
+    Numbers use tabular figures.
 
 ## 8. Message rendering
 
