@@ -8,13 +8,16 @@ agent works, messages pile up fast, and I must tell them apart at a glance (my p
 model's text, a tool call, its result, text the harness injected), follow the conversation as it
 grows, and open any message in full.
 
-The first build covers sections 2–10. Section 12 lists what comes later.
+The first build covers sections 2–10. Section 12 lists what comes later. A build is one fresh
+agent session of about 20 minutes: get the core working first, then run the first-build checks
+of section 10. The full checks wait until we switch from rebuilding to editing the code.
 
 ## 2. How it runs
 
 - Files: `monitor.py` (proxy, capture and dashboard server), `static/index.html`,
-  `static/app.js`, `static/style.css`, `tests/fake_upstream.py` (for the checks) and a short
-  `README.md` with the commands. `proxy.py` stays unchanged, as the reference.
+  `static/app.js`, `static/style.css` and a short `README.md` with the commands. `proxy.py`
+  stays unchanged, as the reference. `tests/fake_upstream.py` comes with the full checks
+  (section 10), not in a first build.
 - Python 3.9+ standard library only: macOS's `/usr/bin/python3` is 3.9, so no `match` and no
   `X | Y` types at runtime. Plain JavaScript and CSS: no framework, no CDN, no build step.
 - `python3 monitor.py [--port 8041] [--ui-port 8042] [--upstream URL] [--verbose]` prints the
@@ -97,7 +100,9 @@ The first build covers sections 2–10. Section 12 lists what comes later.
 
 - **Exchange**: one request and its reply.
   - id: 1, 2, 3… in arrival order.
-  - state: `pending` → `streaming` → `done`, `error` or `aborted`.
+  - state: `pending` → `streaming` → `done`, `error` or `aborted`. A complete reply with HTTP
+    status ≥ 400 is `done` (red because of its status); `error` means a network failure or a
+    broken stream.
   - times: start, first byte, end.
   - method, path, status, and the redacted request and response headers.
   - The raw request body (parsed JSON on demand), the raw reply text and the request size.
@@ -112,7 +117,7 @@ The first build covers sections 2–10. Section 12 lists what comes later.
     numbered S1, S2… in the order seen.
   - Thread = `x-claude-code-agent-id`, or `main` when that header is absent. Subagents are named
     `sub-1`, `sub-2`… per session, in the order seen.
-  - A request without tools is `side`, a one-off thread.
+  - A request without tools is `side`, a one-off thread, even when it carries an agent id.
   - Without these headers (another agent): one thread per distinct first user message.
 - **Parent link**:
   - A subagent thread links to the `Agent` call that started it: the call's `input.prompt`
@@ -147,6 +152,8 @@ The first build covers sections 2–10. Section 12 lists what comes later.
   - the tool results already paired with this exchange's calls, with the #id they came from;
   - the raw reply text.
 - `GET /events` sends Server-Sent Events:
+  - `hello`: sent first on every connection, with a boot id. When the boot id changes (the
+    monitor restarted), the page clears itself and fetches the list again.
   - `exchange`: a full summary, sent on every change. The page upserts by id and keeps the
     higher `version`, so races between the list and the stream are harmless.
   - `reply`: the reply assembled so far for a streaming exchange, at most 4 times per second.
@@ -189,9 +196,11 @@ The first build covers sections 2–10. Section 12 lists what comes later.
     `TASK "…"` or `HARNESS …`.
   - `↓`, what the model answered: the first `CALL Tool arg` (+N), else the first `MODEL "…"` line.
   - Non-message rows show only the method, path and status.
+  - File paths show as the file name only (`RESULT Read notes.txt`). The full path is in the
+    row's tooltip and in the detail.
 - **Detail (right)**: the selected exchange, in the sections below, in this order. Each section
-  header shows a count or size and a toggle. Open or closed is remembered **per section name**,
-  so it survives switching exchanges: an open Conversation with Follow live on is a live
+  header shows a count or size and a toggle. Open or closed is remembered **per section name**
+  (also across reloads, in localStorage), so it survives switching exchanges: an open Conversation with Follow live on is a live
   transcript.
   1. Summary: model, status, stop reason, timing (start, first byte, total), tokens (`in` split
      into input, cache read and cache write; `out` with its thinking part), the request size,
@@ -209,7 +218,8 @@ The first build covers sections 2–10. Section 12 lists what comes later.
      input schema.
   7. Raw (closed): the request headers and body, the response headers, and the raw SSE text.
 - **Follow live**:
-  - On: the newest exchange that passes the filters is selected automatically.
+  - On: the newest exchange that passes the filters is selected and opened automatically. This
+    holds on a fresh page too: the first exchange that arrives opens by itself.
   - Clicking a row, or scrolling the timeline away from the top, turns it off. New rows then
     never move the selection or the scroll; a "N new ↑" chip appears instead.
   - Clicking the chip or the toggle turns it back on.
@@ -237,8 +247,8 @@ a `data-kind` attribute:
     `command-args`, `local-command-stdout`, `local-command-caveat`.
   - Text in user messages **and inside tool results** is split into segments: tagged spans are
     HARNESS; the rest stays YOU (or the tool's output).
-  - A `<task-notification>` is labelled `HARNESS · subagent result` and links to the subagent's
-    thread.
+  - A `<task-notification>` (it usually arrives inside a `<system-reminder>`) is labelled
+    `HARNESS · subagent result` and links to the subagent's thread.
   - User text in `side` requests is HARNESS.
 - **Main argument of a call**: the first present of `file_path`, `command`, `pattern`, `url`,
   `query`, `description` and `prompt`, cut to 80 characters.
@@ -247,8 +257,13 @@ a `data-kind` attribute:
 - **Fonts and markdown**:
   - Whitespace is preserved.
   - Tool output, JSON and code use a monospace font. The model's and the human's text use a
-    proportional font, with ``` fenced spans in monospace.
-  - Markdown is not rendered.
+    proportional font.
+  - Model text gets minimal markdown, built from DOM nodes (never `innerHTML`): `**bold**`,
+    `` `inline code` ``, ``` fenced blocks ``` (monospace on a tinted background) and `#`
+    headings (bold lines). Everything else shows as typed.
+- **Expanded stays expanded**: the open or closed state of every block survives live
+  re-renders (keyed by exchange id and block position). A "Show all" opened in a streaming
+  reply stays open.
 - **JSON** (tool inputs, schemas, raw bodies): `JSON.stringify(x, null, 2)` in a `<pre>`, with
   the long-text collapse.
 - **Escaping**: all traffic content goes into the page as text (`textContent`), never as HTML.
@@ -265,6 +280,22 @@ a `data-kind` attribute:
 - The error count in the top bar filters to red rows and red dots.
 
 ## 10. Acceptance checks
+
+**First-build checks.** Every build from scratch runs these, with no fake upstream: checks 10
+and 11 at the end of this section, and:
+
+- F1. **Fresh page.** With the page open and empty and Follow live on, the first message
+  exchange opens by itself within 1 s of arriving.
+- F2. **Escaping, live.** The agent reads a file holding `<script>alert(1)</script>` and
+  `<img src=x onerror=alert(2)>`. Both show literally in the row and the detail, and nothing runs.
+- F3. **Quick failures and leaks.**
+  - With `--upstream http://127.0.0.1:9`, a `curl` POST whose `authorization`, `x-api-key` and
+    `cookie` are `SENTINEL` gets a 502 and shows as a red exchange.
+  - `SENTINEL` appears nowhere in the page, the API or the terminal.
+  - `Host: evil.example` on the UI port gets 403.
+  - Ctrl-C exits within 1 s.
+
+**Full checks 1–9** come when we switch to editing the code. They need the fake upstream.
 
 Run every check with `/usr/bin/python3`. `tests/fake_upstream.py` (standard library only) mimics
 the API:
@@ -321,6 +352,12 @@ the API:
 - **Order**: the timeline is newest first; inside a conversation, oldest first.
 - **Plain text**, not rendered markdown.
 - **Privacy mask on by default.**
+- **After build 01** (the home build: about 55 minutes, all checks passing):
+  - A build from scratch must fit the lab loop, so first builds skip the fake upstream and run
+    only the first-build checks.
+  - Rows show file names instead of long paths, and model text gets minimal markdown.
+  - The choices build 01 had to make on its own are now written down: HTTP errors, `side`, the
+    `hello` event, and saved section state.
 
 ## 12. Later (not in the first build)
 
