@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent traffic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header id="topbar">
+  <span id="conn" class="conn off">&#9679; connecting</span>
+  <span id="totals"></span>
+  <span id="pills"></span>
+  <span class="spacer"></span>
+  <label><input type="checkbox" id="f-errors"> errors only</label>
+  <label><input type="checkbox" id="f-nonmsg" checked> hide non-message</label>
+  <label><input type="checkbox" id="f-follow" checked> Follow live</label>
+  <label><input type="checkbox" id="f-privacy" checked> Privacy</label>
+  <button id="b-stats" class="tb">Stats</button>
+  <button id="b-flow" class="tb" disabled title="not built yet">Flow</button>
+  <button id="b-growth" class="tb" disabled title="not built yet">Growth</button>
+  <button id="b-xray" class="tb" disabled title="not built yet">X-ray</button>
+</header>
+<div id="lanes"></div>
+<div id="stats" hidden></div>
+<main>
+  <section id="timeline-wrap">
+    <button id="chip" hidden></button>
+    <div id="timeline"></div>
+  </section>
+  <section id="detail"><div class="empty">Waiting for the first request&hellip;</div></section>
+</main>
+<script src="/app.js"></script>
+<script src="/flow.js"></script>
+<script src="/growth.js"></script>
+<script src="/xray.js"></script>
+</body>
+</html>
