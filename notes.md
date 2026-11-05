@@ -55,6 +55,33 @@ launched one background subagent.
   session ids (in `metadata.user_id`). `proxy.py` also prints the first 16 characters of the
   token. Mask these before showing traffic to the class.
 
+## Experiment: the same task, three models (lab, 5 Nov)
+
+Same prompt ("Read notes.txt and tell me the secret word"), same Claude Code version, sent
+through build 01 with `--model`. These figures are for the first request of each session.
+
+| Sent by the harness | Haiku 4.5 | Opus 5.5 | Fable 5.1 |
+|---|---|---|---|
+| System prompt (main block) | 27,853 chars | 6,506 chars (−77%) | 12,578 chars (−55%) |
+| Tool definitions (same 12 tools) | 45,430 chars | 29,257 chars | 29,257 chars |
+| Reminders in the first message | 8 blocks, 14,605 chars | 2 blocks, 1,144 chars | 2 blocks, 1,145 chars |
+| Request body | 89.8 KB | 59.9 KB | 66.0 KB |
+| Input tokens | 22,609 | 20,672 | 22,531 |
+| Thinking | fixed budget (31,999) | adaptive | adaptive |
+| `max_tokens` | 32,000 | 128,000 | 64,000 |
+
+- **The harness writes a different prompt for each model.** This confirms the course video live:
+  the newer models get a much shorter system prompt (Opus 5.5 about 77% shorter, Fable 5.1
+  "less than half"), shorter tool descriptions, and far fewer reminders.
+- **Fewer bytes is not fewer tokens.** Opus 5.5's request is a third smaller than Haiku's, but
+  only 9% smaller in tokens: about 4.0 bytes per token for Haiku 4.5 against about 2.9 for Opus
+  5.5 and Fable 5.1. That suggests the newer models use a different tokenizer (inferred).
+- **Thinking changed shape**: Haiku 4.5 gets a fixed thinking budget; the newer models get
+  "adaptive" thinking, where the model decides how much to think. In both cases the thinking
+  text is hidden.
+- **Each model has its own cache.** All three first requests wrote the cache from scratch
+  (cache read 0).
+
 ## What the home build showed (`builds/01-home`, built from the committed `SPEC.md`)
 
 - **Too slow for the lab loop.** One fresh agent took about 55 minutes (about 315k tokens). It

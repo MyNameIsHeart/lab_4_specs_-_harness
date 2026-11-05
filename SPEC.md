@@ -132,6 +132,17 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
   - No prefix found: flag "history changed at message i" and show from there.
   - Same messages as an earlier request: flag "retry of #N".
 - **Changes**: flag when the system text, the tool list, the model or `max_tokens` differ from prev.
+- **Anatomy** of a message request, computed once, in characters of the parsed body. The
+  five parts add up to the request's content size:
+  - `system`: the system text;
+  - `tools`: the tool definitions, as compact JSON;
+  - `harness`: every harness segment in the messages, including those inside tool results;
+  - `earlier`: the rest of the conversation before the new messages;
+  - `new`: the new messages, without their harness text.
+- **Your words**: the characters of YOU segments in this request, and their share of the whole.
+- **Tool time**: for a request after the first of its thread, the gap between the end of the
+  previous reply and this request's start. That is the time the harness spent running tools
+  (or waiting for a subagent).
 - **Tool pair**:
   - Each `tool_use` is joined to the `tool_result` with the same id, in a later request of the
     same thread.
@@ -187,7 +198,25 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
     Clicking the error count filters to errors.
   - Thread filter pills, "errors only", and "hide non-message requests" (on by default; it hides
     `HEAD` and the like).
-  - The "Follow live" and "Privacy" toggles.
+  - The "Follow live" and "Privacy" toggles, and a "Stats" button.
+- **Lanes** (a strip under the top bar, collapsible, open by default) give a time axis for the
+  current session:
+  - There is one lane per thread (`main`, `sub-1`, `side`…).
+  - Each exchange is a bar from its start to its end, with a tick at the first byte, coloured by
+    state.
+  - The gap before the next bar in a lane is labelled with its tool time (`⚙ 1.2s`).
+  - Concurrent threads show as overlapping bars.
+  - Clicking a bar opens the exchange. The axis rescales as the session grows.
+- **Anatomy bar**: a thin stacked bar under every message row, and a larger one with a legend
+  and numbers in the Summary.
+  - Its five segments: system #334155, tools #b45309, harness #9ca3af, earlier #cbd5e1, new #2563eb.
+  - The Summary also states "your words: 43 chars of 89,768 (0.05%)".
+- **Stats panel** (from the "Stats" button), for the current session and filters:
+  - Requests, and input tokens split into uncached, cache write and cache read.
+  - Output tokens with their thinking part, and the cache-hit share.
+  - **Input cost saved by caching**, as a percentage. This needs no prices: a cache read costs
+    0.1× the base input price, and a cache write 1.25× (5-minute) or 2× (1-hour).
+  - Calls per tool as a bar list, errors, and total tool time against total model time.
 - **Timeline (left, about 40% of the width)**: one row per exchange, **newest first**, appearing
   as soon as the request arrives. A row shows #id, time, the thread pill, the state (a spinner
   and elapsed time while streaming), the duration, `in`/`out` tokens, and two lines of at most
@@ -267,6 +296,9 @@ a `data-kind` attribute:
 - **JSON** (tool inputs, schemas, raw bodies): `JSON.stringify(x, null, 2)` in a `<pre>`, with
   the long-text collapse.
 - **Escaping**: all traffic content goes into the page as text (`textContent`), never as HTML.
+- **Hidden means hidden**: the stylesheet starts with `[hidden] { display: none !important; }`,
+  so a class rule such as `display: inline-block` can never show an element that the code has
+  hidden.
 - **Privacy toggle** (on by default, because the dashboard gets shown to the class): email
   addresses and the ids in `metadata.user_id` are masked on screen (`•••@•••`).
 - **Thread pills** are outlined and use their own palette, never the kind colours: `main` is
@@ -294,6 +326,16 @@ and 11 at the end of this section, and:
   - `SENTINEL` appears nowhere in the page, the API or the terminal.
   - `Host: evil.example` on the UI port gets 403.
   - Ctrl-C exits within 1 s.
+
+- F4. **Lanes and anatomy.**
+  - After a live run with a background subagent, the lanes show `main` and `sub-1` overlapping
+    in time, with a tool-time label between main's bars.
+  - Every message row has an anatomy bar, and the Summary's five numbers add up to the
+    request's content size.
+- F5. **Stats.** The stats panel's token totals equal the sum over the session's rows, and the
+  caching saving shows as a percentage.
+- F6. **Only real errors are red.** In a live run where exactly one tool call fails (reading a
+  missing file), exactly one row has the red dot and the top bar says "1 error".
 
 **Full checks 1–9** come when we switch to editing the code. They need the fake upstream.
 
@@ -358,15 +400,23 @@ the API:
   - Rows show file names instead of long paths, and model text gets minimal markdown.
   - The choices build 01 had to make on its own are now written down: HTTP errors, `side`, the
     `hello` event, and saved section state.
+- **After build 02** (two fresh builds of the same spec, run in parallel):
+  - Sonnet finished in 11 minutes and worked on live traffic. Opus had written no files after
+    18 minutes.
+  - A real browser showed what a builder without one cannot see: in build 02b the red error dot
+    appeared on every row, because the build's CSS overrode the `hidden` attribute. The spec now
+    makes `[hidden]` win, with a check (F6).
+  - With a fast, working core, the next version adds views that show where the bytes and the
+    time go: the anatomy bar, lanes and stats. They come from what we found in the traffic: the
+    harness's scaffolding dwarfs the human's words and differs by model, caching carries the
+    cost, and subagents run in parallel.
 
 ## 12. Later (not in the first build)
 
 - The conversation transcript as its own view (hash routes `#/thread/…`).
 - Search (server-side, over new messages and replies) and a filter by tool.
-- A statistics panel: calls per tool, tokens over time, cache share.
-- A cost estimate, which needs a price table with model-prefix rules.
+- A cost estimate in dollars, which needs a price table with model-prefix rules.
 - Foldable, syntax-coloured JSON, and copy buttons.
-- The time spent running tools (the gap between a reply and the next request).
 - `--save` / `--load` to JSONL.
 - A dark theme.
 - Codex (OpenAI format) traffic beyond the raw view.
