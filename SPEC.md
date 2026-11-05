@@ -166,7 +166,8 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
 
 ## 6. Server API (UI port)
 
-- `GET /` serves `index.html`, and `/app.js` and `/style.css` are served by name. Nothing else
+- `GET /` serves `index.html`, and `/app.js`, `/style.css` and the team feature files
+  (`/flow.js`, `/growth.js`, `/xray.js`, section 14) are served by name. Nothing else
   is read from disk. A request whose `Host` is not `localhost:<ui-port>` or
   `127.0.0.1:<ui-port>` gets 403 (DNS-rebinding guard).
 - `GET /api/exchanges` returns all summaries: id, version, session, thread, state, status,
@@ -485,3 +486,55 @@ the API:
 3. Should `side` requests and `HEAD` checks be hidden by default, or only dimmed?
 4. Is a cost estimate worth it, and from which price table?
 5. After which build do we stop regenerating and start editing the code?
+
+## 14. Team features (built in parallel: one person and one branch each)
+
+Each feature lives in its own file (`static/flow.js`, `static/growth.js`, `static/xray.js`). Its
+button is already in the top bar (`#b-flow`, `#b-growth`, `#b-xray`), disabled until the
+feature enables it. Every feature follows the same rules:
+- It uses only the existing API (`/api/exchanges`, `/api/exchanges/<id>`, `/events`).
+- It adds its own CSS through a `<style>` element.
+- Traffic text goes into the page with `textContent` only.
+- No feature changes `app.js`, `monitor.py` or `style.css`, so the three branches merge without
+  conflicts.
+
+### 14.1 Flow: the agent loop as a sequence diagram (`static/flow.js`)
+- "Flow" opens a full-screen overlay with an SVG sequence diagram of the current session (the
+  session of the selected exchange, else the newest one).
+- Lifelines, left to right: You · Claude Code (the harness) · Model · Tools · one per subagent.
+- Time runs downward:
+  - Each message exchange is an arrow from harness to model labelled `#id · in 24.7k`, and an
+    arrow back labelled with the answer (`CALL Read notes.txt`, `MODEL "…"`), in the kind
+    colours.
+  - A tool call is a loop from the harness to Tools and back, labelled with its tool time.
+  - A subagent's exchanges sit on its own lifeline. A dashed arrow joins it to the `Agent` call
+    that started it, and back at its result, when that link is known.
+- Clicking an arrow closes the overlay and opens that exchange. Esc closes it.
+- Check: on a run with a background subagent, both lifelines show, in time order, and every
+  message exchange has its two arrows.
+
+### 14.2 Growth: how the context grows, and what caching does (`static/growth.js`)
+- "Growth" opens an overlay with an SVG chart of the current session:
+  - One stacked bar per message exchange, in order. The bar's height is its input tokens,
+    split into cache read (#9ca3af), cache write (#b45309) and uncached (#2563eb).
+  - Output tokens are a green line on a second axis.
+  - Subagent bars are outlined in their thread's pill colour.
+- Above the chart: total input tokens, the cache-hit share, the input cost saved by caching (as
+  in Stats), and "the context grew from X to Y tokens, +Z per turn".
+- Hovering shows the numbers, and clicking a bar opens the exchange. Esc closes the overlay.
+- Check: each bar's three parts add up to that exchange's `in`. After the first request of a
+  thread, cache read is most of each bar.
+
+### 14.3 X-ray: everything the model saw that you did not type (`static/xray.js`)
+- "X-ray" opens a side panel for the selected message exchange. It lists every piece of text in
+  the request that the human did not type, in order of appearance:
+  - the system blocks;
+  - the tool definitions, as one item;
+  - each harness segment, with its first line and where it sits (first message, inside
+    `RESULT · Read`, a system message, a task notification, a scheduled wakeup);
+  - `tool_addition` blocks.
+- Each item shows its size and its share of the request, with a small bar. A toggle sorts by
+  size, and clicking an item expands its text.
+- At the top, in large type: "You typed N characters. The harness added M (P%)."
+- Check: for a Haiku first request it lists 3 system blocks, the tool definitions and 8–9
+  reminders, and the shares plus "your words" add up to 100%.
