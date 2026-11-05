@@ -82,6 +82,32 @@ through build 01 with `--model`. These figures are for the first request of each
 - **Each model has its own cache.** All three first requests wrote the cache from scratch
   (cache read 0).
 
+## More findings from the lab (5 Nov)
+
+- **The prompt is restructured, not just cut.** Build 04's Compare view, Opus 5.5 against
+  Haiku 4.5:
+  - Haiku's prompt has 17 sections, Opus's 6.
+  - Only Haiku has "# Doing tasks", "# Executing actions with care", "# Tone and style",
+    "# Text output" and "# auto memory" with six subsections (about 13K characters of
+    memory guidance).
+  - Only Opus has a short "# Harness" (2.4K) and "# Memory" (2.2K).
+  - "# Environment" and "# Context management" are identical.
+  - The line diff: 181 lines removed, 19 added.
+- **The message format differs by model.** Opus 5.5 gets `role: "system"` messages inside
+  `messages`: the environment, and later "The following tools just became available" with
+  `tool_addition` blocks, i.e. tools added mid-conversation. Haiku 4.5 gets the same
+  information as `<system-reminder>` text in user messages.
+- **Messages the human never typed.** The agent waited for its subagent with `ScheduleWakeup`;
+  later the harness sent that call's prompt back as a plain user message. Every build
+  labelled it YOU.
+- **A real outage.** For about two minutes TLS handshakes to the API timed out (then "Can't
+  assign requested address"). Claude Code retried every request, and the agent launched a
+  second subagent meanwhile. The dashboard showed each failed attempt in red and the outage as
+  long red bars in the lanes. The machine had only 15 sockets in TIME_WAIT, so it was the
+  network (probably the lab Wi-Fi reconnecting), not exhaustion.
+- **Where the time goes**: in one session the model took 20.1 s and the tools 3.0 s.
+- **Caching saved 84%** of the input cost in one session: 96% of input tokens were cache reads.
+
 ## What the home build showed (`builds/01-home`, built from the committed `SPEC.md`)
 
 - **Too slow for the lab loop.** One fresh agent took about 55 minutes (about 315k tokens). It
