@@ -86,6 +86,11 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
   holds messages with `role: "system"`. They carry the environment, and announce newly
   available tools as `tool_addition` blocks (a tool definition added mid-conversation). Haiku
   4.5 gets the same information as `<system-reminder>` text in user messages.
+  - A `tool_addition` block has this shape: `{"type": "tool_addition", "tool": {"type":
+    "tool_definition", "definition": {"name", "description", "input_schema"}}}`. The tool's
+    name is `tool.definition.name`.
+  - The harness can send the same message's content as a string in one request and as a list
+    of blocks in the next. When comparing messages, a string equals one text block.
 - When the agent waits with `ScheduleWakeup`, the harness later sends that call's `prompt` back
   as a plain user text block, which the human never typed.
 - The reply is an SSE stream:
@@ -374,7 +379,8 @@ and 11 at the end of this section, and:
 - F8. **Harness, not you.**
   - In a live `--model claude-opus-5-5` run, the environment arrives in a `role: "system"`
     message and shows as `HARNESS · system message`, never as YOU.
-  - Tools announced mid-conversation show as TOOL ADDED cards.
+  - Tools announced mid-conversation show as TOOL ADDED cards with the tool's real name
+    (never "?").
   - "Your words" counts only the typed prompt.
   - In a run where the agent waits with `ScheduleWakeup`, the prompt the harness sends back
     shows as `HARNESS · scheduled wakeup`.
