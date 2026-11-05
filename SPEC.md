@@ -82,6 +82,12 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
     blocks of their own.
   - A background subagent's result reaches the main agent as a new user message holding
     `<task-notification>…</task-notification>`.
+- **Newer models get a different message format.** With Opus 5.5 and Fable 5.1, `messages` also
+  holds messages with `role: "system"`. They carry the environment, and announce newly
+  available tools as `tool_addition` blocks (a tool definition added mid-conversation). Haiku
+  4.5 gets the same information as `<system-reminder>` text in user messages.
+- When the agent waits with `ScheduleWakeup`, the harness later sends that call's `prompt` back
+  as a plain user text block, which the human never typed.
 - The reply is an SSE stream:
   - `message_start` (model, usage).
   - For each block: `content_block_start`, then `content_block_delta`, then `content_block_stop`.
@@ -135,8 +141,9 @@ of section 10. The full checks wait until we switch from rebuilding to editing t
 - **Anatomy** of a message request, computed once, in characters of the parsed body. The
   five parts add up to the request's content size:
   - `system`: the system text;
-  - `tools`: the tool definitions, as compact JSON;
-  - `harness`: every harness segment in the messages, including those inside tool results;
+  - `tools`: the tool definitions, as compact JSON, plus any `tool_addition` blocks;
+  - `harness`: every harness segment in the messages, including those inside tool results and
+    the text of `role: "system"` messages;
   - `earlier`: the rest of the conversation before the new messages;
   - `new`: the new messages, without their harness text.
 - **Your words**: the characters of YOU segments in this request, and their share of the whole.
@@ -286,6 +293,7 @@ a `data-kind` attribute:
 | `call` | CALL · Tool | #d97706 amber | a tool call; its header shows the main argument |
 | `result` | RESULT · Tool | #0d9488 teal | a tool result; red #dc2626 with **ERROR** when `is_error` |
 | `system` | SYSTEM | #334155 slate | the system instructions |
+| `tooladd` | TOOL ADDED · Tool | #b45309 ochre | a tool definition added mid-conversation (`tool_addition`): its name, with its description and schema collapsed |
 | `other` | OTHER · type | #78716c stone | any other block, as JSON; base64 data shown as "[image/png, 230 KB]" |
 
 - **Harness text**:
@@ -296,6 +304,10 @@ a `data-kind` attribute:
   - A `<task-notification>` (it usually arrives inside a `<system-reminder>`) is labelled
     `HARNESS · subagent result` and links to the subagent's thread.
   - User text in `side` requests is HARNESS.
+  - Every text block of a `role: "system"` message is HARNESS, labelled `HARNESS · system
+    message`. YOU only ever comes from `role: "user"` messages.
+  - A user text block equal to the `prompt` of an earlier `ScheduleWakeup` call of the thread
+    is `HARNESS · scheduled wakeup`.
 - **Main argument of a call**: the first present of `file_path`, `command`, `pattern`, `url`,
   `query`, `description` and `prompt`, cut to 80 characters.
 - **Long text**: anything over 10 lines or 800 characters shows its first 6 lines (at most 500
@@ -359,6 +371,13 @@ and 11 at the end of this section, and:
   - Comparing a `--model claude-haiku-4-5` first request with a `--model claude-opus-5-5`
     first request shows the size difference per section, the tool-list changes, and a line
     diff with unchanged lines folded.
+- F8. **Harness, not you.**
+  - In a live `--model claude-opus-5-5` run, the environment arrives in a `role: "system"`
+    message and shows as `HARNESS · system message`, never as YOU.
+  - Tools announced mid-conversation show as TOOL ADDED cards.
+  - "Your words" counts only the typed prompt.
+  - In a run where the agent waits with `ScheduleWakeup`, the prompt the harness sends back
+    shows as `HARNESS · scheduled wakeup`.
 
 **Full checks 1–9** come when we switch to editing the code. They need the fake upstream.
 
@@ -433,6 +452,13 @@ the API:
     time go: the anatomy bar, lanes and stats. They come from what we found in the traffic: the
     harness's scaffolding dwarfs the human's words and differs by model, caching carries the
     cost, and subagents run in parallel.
+- **After builds 03 and 04** (we switched to editing at build 03: 3 minutes against 10 for the
+  same spec from scratch):
+  - Traffic from one model is not enough. Opus 5.5 traffic has a different message format:
+    `role: "system"` messages and `tool_addition` blocks.
+  - Every build labelled the Opus environment (26K characters) as "your words". A
+    `ScheduleWakeup` prompt the harness sent back was also labelled YOU.
+  - The spec now names these cases (check F8).
 
 ## 12. Later (not in the first build)
 
