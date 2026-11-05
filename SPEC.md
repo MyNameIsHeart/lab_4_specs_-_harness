@@ -506,7 +506,8 @@ feature enables it. Every feature follows the same rules:
   - Each message exchange is an arrow from harness to model labelled `#id · in 24.7k`, and an
     arrow back labelled with the answer (`CALL Read notes.txt`, `MODEL "…"`), in the kind
     colours.
-  - A tool call is a loop from the harness to Tools and back, labelled with its tool time.
+  - A tool call is a loop from the harness to Tools and back, labelled with its tool time
+    (under one second in milliseconds: a `Read` takes about 40 ms).
   - A subagent's exchanges sit on its own lifeline. A dashed arrow joins it to the `Agent` call
     that started it, and back at its result, when that link is known.
 - Clicking an arrow closes the overlay and opens that exchange. Esc closes it.
