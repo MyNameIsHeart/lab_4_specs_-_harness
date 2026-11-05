@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Agent traffic</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header id="top">
+  <span id="conn" class="conn">● connecting</span>
+  <span id="totals"></span>
+  <span id="pills"></span>
+  <label><input type="checkbox" id="f-errors"> errors only</label>
+  <label><input type="checkbox" id="f-hide" checked> hide non-message</label>
+  <label><input type="checkbox" id="f-follow" checked> Follow live</label>
+  <label><input type="checkbox" id="f-privacy" checked> Privacy</label>
+  <button id="b-stats">Stats</button>
+  <button id="b-lanes">Lanes</button>
+</header>
+<section id="lanes"></section>
+<section id="stats" hidden></section>
+<main id="main">
+  <div id="left">
+    <button id="chip" hidden></button>
+    <div id="timeline"></div>
+  </div>
+  <div id="detail"><p class="muted">Waiting for traffic…</p></div>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

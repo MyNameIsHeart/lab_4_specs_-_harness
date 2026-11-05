@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent Traffic</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header id="top">
+    <div class="top-row">
+      <span id="conn" class="conn off">&#9679; connecting</span>
+      <span id="totals" class="totals"></span>
+      <span id="pills" class="pills"></span>
+      <label class="tg"><input type="checkbox" id="f-errors"> errors only</label>
+    </div>
+    <div class="top-row right">
+      <label class="tg"><input type="checkbox" id="f-nonmsg" checked> hide non-message</label>
+      <label class="tg"><input type="checkbox" id="f-follow" checked> Follow live</label>
+      <label class="tg"><input type="checkbox" id="f-privacy" checked> Privacy</label>
+    </div>
+  </header>
+  <main id="main">
+    <div id="left">
+      <button type="button" id="chip" class="chip-new" hidden></button>
+      <div id="timeline" aria-label="Exchanges, newest first"></div>
+    </div>
+    <div id="detail" aria-label="Selected exchange"></div>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
