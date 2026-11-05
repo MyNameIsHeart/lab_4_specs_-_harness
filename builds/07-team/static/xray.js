@@ -77,14 +77,14 @@ const el = (tag, cls, text) => {
   return node;
 };
 const style = el('style', '', `
-#xray-panel{position:fixed;inset:0 0 0 auto;width:min(760px,100vw);z-index:100;background:var(--bg,#fff);color:var(--fg,#111827);box-shadow:-8px 0 40px #0003;overflow:auto;padding:22px;font:14px/1.5 system-ui}
+#xray-panel{position:fixed;inset:0 0 0 auto;width:min(760px,100vw);z-index:100;background:var(--bg,#fff);color:var(--fg,#111827);box-shadow:-8px 0 40px rgba(0,0,0,.35);border-left:1px solid var(--line,#e5e7eb);overflow:auto;padding:22px;font:14px/1.5 system-ui}
 #xray-panel .xr-head{display:flex;gap:12px;align-items:center;justify-content:space-between;position:sticky;top:-22px;background:var(--bg,#fff);padding:12px 0;z-index:1}
-#xray-panel h2{font-size:18px;margin:0} #xray-panel .xr-hero{font-size:28px;line-height:1.25;margin:18px 0;color:#334155;font-weight:700}
+#xray-panel h2{font-size:18px;margin:0} #xray-panel .xr-hero{font-size:28px;line-height:1.25;margin:18px 0;color:var(--fg,#334155);font-weight:700}
 #xray-panel .xr-muted{color:var(--muted,#6b7280);font-size:12px} #xray-panel .xr-controls{display:flex;gap:16px;flex-wrap:wrap;margin:20px 0}
 #xray-panel details{border:1px solid var(--line,#e5e7eb);border-radius:8px;margin:10px 0;padding:12px} #xray-panel summary{cursor:pointer;overflow-wrap:anywhere}
 #xray-panel .xr-location{font-size:12px;color:var(--muted,#6b7280);margin:4px 0} #xray-panel .xr-size{font-variant-numeric:tabular-nums;font-weight:600}
-#xray-panel .xr-track{height:5px;background:#e5e7eb;border-radius:4px;margin:8px 0} #xray-panel .xr-fill{height:100%;background:#b45309;border-radius:4px}
-#xray-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace;max-height:50vh;overflow:auto;border-top:1px solid #e5e7eb;padding-top:12px}
+#xray-panel .xr-track{height:5px;background:var(--line,#e5e7eb);border-radius:4px;margin:8px 0} #xray-panel .xr-fill{height:100%;background:#b45309;border-radius:4px}
+#xray-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace;max-height:50vh;overflow:auto;border-top:1px solid var(--line,#e5e7eb);padding-top:12px}
 #xray-panel button{cursor:pointer;padding:6px 12px} #xray-panel .xr-preview{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;color:var(--muted,#6b7280)}
 `);
 document.head.append(style);
