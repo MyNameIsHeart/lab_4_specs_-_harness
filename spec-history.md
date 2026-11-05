@@ -1,6 +1,6 @@
 # Spec history
 
-SPEC.md has six commits. Every commit message gives its reason (what the build before it showed), so no build notes were needed. Sources are named per entry.
+SPEC.md has seven commits. Every commit message gives its reason (what the build before it showed), so no build notes were needed. The source of each reason is named per entry.
 
 ## 1. 470ac29 First draft
 - **Changed:** Added proxy.py (the course proxy, unchanged) and the first SPEC.md (220 lines).
@@ -12,7 +12,7 @@ SPEC.md has six commits. Every commit message gives its reason (what the build b
 
 ## 3. 562b8c7 After build 01 (the home build)
 - **Changed:** First builds are time-boxed to about 20 minutes with three quick checks plus two live checks (full checks wait for editing); file names in rows; minimal markdown for model text; expanded blocks stay expanded; Follow live must open the first exchange on a fresh page; the builder's own choices are now written into the spec.
-- **Why:** Build 01 worked on live traffic but took about 55 minutes (mostly the fake upstream and all 11 checks), too slow for the 70-minute loop. It also showed long paths crowding rows, raw `**bold**`, a Follow live glitch on a fresh page, and "Show all" collapsing on updates. (commit 562b8c7; same list in notes.md, "What the home build showed")
+- **Why:** Build 01 worked on live traffic but took about 55 minutes (mostly the fake upstream and all 11 checks), too slow for the 70-minute loop. It also showed long paths crowding rows, raw `**bold**`, a Follow live glitch on a fresh page, and "Show all" collapsing on updates. (commit 562b8c7; same list in notes.md)
 
 ## 4. 50cba62 After build 02, plus new views (spec v4)
 - **Changed:** Rule that `[hidden]` always wins, with check F6; three new views (anatomy bar per request, lanes per thread with tool time, stats panel with caching savings); checks F4 and F5.
@@ -20,7 +20,7 @@ SPEC.md has six commits. Every commit message gives its reason (what the build b
 
 ---
 ### Switch point: from rebuilding to editing
-After spec v4 (50cba62) and before commit 5, we stopped rebuilding the dashboard from scratch and began editing the previous build. Reason (commit fe49da5, "Build 03-edit"): 02b's core was verified working in a browser, and spec v4 was additive (three views and one CSS rule). Editing 02b took 3 minutes; a rebuild had taken 11. A from-scratch build of v4 (03-scratch) ran in parallel as the control. Commit 8e04d37 records it: 03-scratch took 10 minutes against 3 for 03-edit, and chose a different architecture.
+Between spec v4 (50cba62) and the next spec commit (d6f5ab5) we stopped rebuilding the dashboard from scratch and began editing the previous build. This is recorded in a build commit, not a SPEC.md commit: fe49da5, "Build 03-edit: switch from rebuilding to editing (02b -> spec v4)". Reason (commit fe49da5): 02b's core was verified working in a browser, and spec v4 was additive (three views and one CSS rule). Editing took 3 minutes; a rebuild of 02b had taken 11. A from-scratch build of v4 (03-scratch) ran in parallel as the control; commit 8e04d37 records it at 10 minutes, with a different architecture.
 
 ---
 
@@ -28,9 +28,13 @@ After spec v4 (50cba62) and before commit 5, we stopped rebuilding the dashboard
 - **Changed:** Prompt sections in the data model; a system prompt explorer (sections, sizes, shares); a "Compare with..." view of two requests (anatomy, sections matched by heading, folded line diff of system prompts, tool-list changes); check F7.
 - **Why:** Build 03-edit's new views worked (84% caching saving), but two questions still needed work outside the dashboard: what is in the 28K-character system prompt, and what the harness sends each model (we had to write a Python script). (commit d6f5ab5)
 
-## 6. e63c25d After build 04
+## 6. e63c25d After build 04 (spec v6)
 - **Changed:** Both message formats described; system-role text is HARNESS ("system message"); YOU only from user messages; a TOOL ADDED card for `tool_addition`; ScheduleWakeup prompts are HARNESS ("scheduled wakeup"); anatomy counts both; check F8.
 - **Why:** Build 04, used on Opus 5.5 traffic, showed that newer models get `role: "system"` messages and `tool_addition` blocks where Haiku 4.5 gets `<system-reminder>` text, so every build labelled Opus's 26K-character environment as YOU. Builds 02a and 02b also labelled the ScheduleWakeup prompt as YOU. (commit e63c25d)
+
+## 7. 7d0af96 After build 05
+- **Changed:** The traffic section gives the exact shape of a `tool_addition` block (name at `tool.definition.name`) and says a string equals one text block when comparing messages; check F8 now requires the real tool name on TOOL ADDED cards.
+- **Why:** Build 05-edit (17 minutes, slowed by the network outage) showed TOOL ADDED cards reading "TOOL ADDED · ?" because the spec never gave the block's shape, and a false "history changed" flag because the same message came as a string in one request and a block list in the next. (commit 7d0af96; confirmed in build commit 1cad595)
 
 ## Findings in the traffic
 Source: notes.md.

@@ -1,5 +1,27 @@
 # Lab 4 discussion notes
 
+## Demo script (about 3 minutes, latest build on live traffic)
+
+Before you present, start the monitor and prepare two sessions for Compare:
+
+```
+cd builds/06-edit && python3 monitor.py           # proxy :8041, dashboard http://localhost:8042
+ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me the secret word" --model claude-haiku-4-5
+ANTHROPIC_BASE_URL=http://localhost:8041 claude -p "Read notes.txt and tell me the secret word" --model claude-opus-5-5
+```
+
+1. **Live**: in a terminal, run `ANTHROPIC_BASE_URL=http://localhost:8041 claude` and ask it to
+   read two files and launch one background subagent. Rows appear while the agent works.
+2. **Kinds at a glance**: YOU, MODEL, CALL with its RESULT joined under it, and HARNESS
+   reminders, even those hidden inside a tool result.
+3. **Lanes**: `main` and `sub-1` running in parallel, with ⚙ tool time in the gaps.
+4. **Anatomy** in the Summary: system ~28%, tools ~46%, harness ~18%, "your words" ~0.3%.
+5. **Stats**: 96% cache reads, so caching saved ~84% of the input cost; the model's time against
+   the tools' time.
+6. **System instructions**: the prompt's sections with their sizes.
+7. **Compare with…**: the Opus first request against the Haiku first request. The Opus
+   prompt is 77% shorter, and you can see exactly which sections were cut and the line diff.
+
 ## The builds
 
 | Build | How | Agent | Time | monitor.py / app.js lines | Seen in a browser on live traffic |
@@ -10,7 +32,8 @@
 | 03-edit | **edited** 02b to spec v4 | Sonnet | **3 min** | 988 / 811 | lanes, anatomy bars, stats; caching saved 84.3% of input cost |
 | 03-scratch | from scratch, spec v4 (control) | Sonnet | 10 min | 1,203 / 521 | same features, different design; showed a real network outage as red lanes |
 | 04-edit | edited 03-edit to spec v5 | Sonnet | 2 min | 1,017 / 987 | system prompt explorer; Compare (Opus 5.5 vs Haiku 4.5) |
-| 05-edit | edited 04-edit to spec v6 | Sonnet | _pending_ | _pending_ | _pending_ |
+| 05-edit | edited 04-edit to spec v6 | Sonnet | ~17 min (live tests hit the outage) | 1,042 / 1,009 | Opus environment shows as HARNESS; "your words" 42 chars instead of 26K; TOOL ADDED cards read "?" |
+| 06-edit | edited 05-edit to spec v7 | Sonnet | ~5 min | see build | real tool names on TOOL ADDED cards |
 
 ## 1. Which decisions did we only discover by building?
 
@@ -30,6 +53,9 @@
 - **The message format differs by model.** Opus 5.5 gets `role: "system"` messages and
   `tool_addition` blocks, where Haiku 4.5 gets `<system-reminder>` text. Every build labelled
   Opus's 26K-character environment as "your words" (spec v6, F8).
+- **Unstated shapes get guessed.** The spec named `tool_addition` but not its shape, so build 05
+  guessed wrong and showed "TOOL ADDED · ?" (the name sits at `tool.definition.name`). The
+  harness also sends the same message as a string in one request and a list in the next.
 - **Real failures happen.** During the lab, TLS handshakes to the API timed out for about two
   minutes. Claude Code retried every request, and the dashboard showed each attempt in red.
 

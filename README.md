@@ -20,12 +20,13 @@ again by fresh agent sessions from `SPEC.md` alone. The spec improves after ever
 | `02a-opus`, `02b-sonnet` | from scratch, the same spec, in parallel | 19 / 11 min |
 | `03-edit`, `03-scratch` | the same spec change: an edit of 02b against a rebuild | 3 / 10 min |
 | `04-edit` | adds the system prompt explorer and Compare | 2 min |
-| `05-edit` | handles `role: "system"` messages and `tool_addition` (newer models) | see its notes |
+| `05-edit` | handles `role: "system"` messages and `tool_addition` (newer models) | ~17 min (outage) |
+| `06-edit` | real tool names on TOOL ADDED cards (the block's shape is now in the spec) | ~5 min |
 
 ## Run the latest build
 
 ```
-cd builds/05-edit
+cd builds/06-edit
 python3 monitor.py                                  # proxy on :8041, dashboard on :8042
 ANTHROPIC_BASE_URL=http://localhost:8041 claude     # another terminal: use the agent as usual
 open http://localhost:8042
